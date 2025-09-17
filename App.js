@@ -1,20 +1,44 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+// Importar Provider
+import { ShoppingListProvider } from "./src/context/ShoppingListContext";
+
+// Importar as telas
+import HomeScreen from "./src/screens/HomeScreen";
+import AddItemScreen from "./src/screens/AddItemScreen";
+import DetailsScreen from "./src/screens/DetailsScreen";
+import AboutScreen from "./src/screens/AboutScreen";
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <ShoppingListProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Home">
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{ title: "Lista de Compras" }}
+          />
+          <Stack.Screen
+            name="AddItem"
+            component={AddItemScreen}
+            options={{ title: "Adicionar Item" }}
+          />
+          <Stack.Screen
+            name="Details"
+            component={DetailsScreen}
+            options={{ title: "Detalhes" }}
+          />
+          <Stack.Screen
+            name="About"
+            component={AboutScreen}
+            options={{ title: "Sobre" }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ShoppingListProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
