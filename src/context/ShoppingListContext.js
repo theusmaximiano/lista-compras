@@ -1,24 +1,17 @@
 import React, { createContext, useState } from "react";
 
-// Criar o Contexto
 export const ShoppingListContext = createContext();
 
-// Provider que vai envolver o App
 export function ShoppingListProvider({ children }) {
-  // Estado global da lista de compras
   const [items, setItems] = useState([]);
 
-  // Função para adicionar item
   const addItem = (item) => {
-    setItems((prev) => [...prev, { id: Date.now().toString(), ...item }]);
+    setItems((prev) => [
+      ...prev,
+      { ...item, id: Date.now().toString() },
+    ]);
   };
 
-  // Função para remover item
-  const removeItem = (id) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  // Função para marcar item como comprado
   const toggleItem = (id) => {
     setItems((prev) =>
       prev.map((item) =>
@@ -27,9 +20,13 @@ export function ShoppingListProvider({ children }) {
     );
   };
 
+  const removeItem = (id) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
   return (
     <ShoppingListContext.Provider
-      value={{ items, addItem, removeItem, toggleItem }}
+      value={{ items, addItem, toggleItem, removeItem }}
     >
       {children}
     </ShoppingListContext.Provider>

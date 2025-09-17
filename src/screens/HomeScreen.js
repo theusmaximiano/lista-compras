@@ -1,40 +1,57 @@
 import React, { useContext } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  Button,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { View, Text, FlatList, Button, StyleSheet } from "react-native";
 import { ShoppingListContext } from "../context/ShoppingListContext";
-import ItemRow from "../components/ItemRow";
 
 export default function HomeScreen({ navigation }) {
   const { items, toggleItem, removeItem } = useContext(ShoppingListContext);
 
+  const renderItem = ({ item }) => (
+    <View style={styles.itemContainer}>
+      <View>
+        <Text
+          style={[
+            styles.itemText,
+            item.bought && { textDecorationLine: "line-through", color: "gray" },
+          ]}
+        >
+          {item.name} — {item.quantity} un. — R$ {item.price.toFixed(2)}
+        </Text>
+        <Text style={styles.totalText}>
+          Total: R$ {(item.quantity * item.price).toFixed(2)}
+        </Text>
+      </View>
+
+      <View style={styles.itemButtons}>
+        <Button
+          title={item.bought ? "Desmarcar" : "Marcar"}
+          onPress={() => toggleItem(item.id)}
+        />
+        <Button
+          title="Remover"
+          color="red"
+          onPress={() => removeItem(item.id)}
+        />
+        <Button
+          title="Detalhes"
+          onPress={() => navigation.navigate("Details", { id: item.id })}
+        />
+      </View>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Minha Lista de Compras</Text>
+      <Text style={styles.title}>Lista de Compras</Text>
 
-      {/* Lista de itens */}
       <FlatList
         data={items}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <ItemRow
-            item={item}
-            onToggle={() => toggleItem(item.id)} // ainda pode marcar/desmarcar
-            onRemove={() => removeItem(item.id)}
-            onPress={() => navigation.navigate("Details", { id: item.id })} // abre Details
-          />
-        )}
+        renderItem={renderItem}
         ListEmptyComponent={
           <Text style={styles.emptyText}>Nenhum item na lista 😢</Text>
         }
       />
 
-      {/* Botões para navegar */}
       <View style={styles.buttons}>
         <Button
           title="Adicionar Item"
@@ -45,7 +62,6 @@ export default function HomeScreen({ navigation }) {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
   title: {
@@ -64,5 +80,9 @@ const styles = StyleSheet.create({
     marginTop: 50,
     fontSize: 16,
     color: "#888",
+  },
+  itemButtons: { flexDirection: "row", justifyContent: "space-between", width: 250 },
+  itemContainer: {
+    padding: 15,
   },
 });
