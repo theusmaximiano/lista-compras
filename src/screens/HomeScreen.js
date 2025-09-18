@@ -1,17 +1,25 @@
 import React, { useContext } from "react";
-import { View, Text, FlatList, Button, StyleSheet } from "react-native";
+import { StyleSheet, FlatList, View, ImageBackground } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Text, Button, useTheme, Card, FAB } from "react-native-paper";
 import { ShoppingListContext } from "../context/ShoppingListContext";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function HomeScreen({ navigation }) {
   const { items, toggleItem, removeItem } = useContext(ShoppingListContext);
+  const { colors } = useTheme();
 
   const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <View>
+    <Card style={[styles.card, { backgroundColor: "rgba(255,255,255,0.9)" }]}>
+      <Card.Content>
         <Text
           style={[
             styles.itemText,
-            item.bought && { textDecorationLine: "line-through", color: "gray" },
+            item.bought && {
+              textDecorationLine: "line-through",
+              color: colors.outline,
+            },
           ]}
         >
           {item.name} — {item.quantity} un. — R$ {item.price.toFixed(2)}
@@ -19,70 +27,123 @@ export default function HomeScreen({ navigation }) {
         <Text style={styles.totalText}>
           Total: R$ {(item.quantity * item.price).toFixed(2)}
         </Text>
-      </View>
-
-      <View style={styles.itemButtons}>
+      </Card.Content>
+      <Card.Actions>
+        <Button mode="contained-tonal" onPress={() => toggleItem(item.id)}>
+          {item.bought ? "Desmarcar" : "Marcar"}
+        </Button>
         <Button
-          title={item.bought ? "Desmarcar" : "Marcar"}
-          onPress={() => toggleItem(item.id)}
-        />
-        <Button
-          title="Remover"
-          color="red"
+          mode="outlined"
+          textColor={colors.error}
           onPress={() => removeItem(item.id)}
-        />
+        >
+          Remover
+        </Button>
         <Button
-          title="Detalhes"
+          mode="contained"
           onPress={() => navigation.navigate("Details", { id: item.id })}
-        />
-      </View>
-    </View>
+        >
+          Detalhes
+        </Button>
+      </Card.Actions>
+    </Card>
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Lista de Compras</Text>
+    <SafeAreaView style={{ flex: 1 }}>
+      <ImageBackground
+        source={require("../../assets/fundo.jpg")}
+        style={styles.background}
+        resizeMode="cover"
+      >
+        {/* Cabeçalho com ícone e título */}
+        <View style={styles.header}>
+          <Icon name="cart-outline" size={28} color={colors.primary} />
+          <Text variant="headlineMedium" style={styles.title}>
+            Lista de Compras
+          </Text>
+        </View>
 
-      <FlatList
-        data={items}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>Nenhum item na lista 😢</Text>
-        }
-      />
+        {/* Lista de itens */}
+        <FlatList
+          data={items}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>Nenhum item na lista 😢</Text>
+          }
+          contentContainerStyle={{ paddingBottom: 140, paddingHorizontal: 8 }}
+        />
 
-      <View style={styles.buttons}>
-        <Button
-          title="Adicionar Item"
+        {/* Rodapé com botão Sobre */}
+        <View style={styles.footer}>
+          <Button
+            mode="outlined"
+            style={styles.aboutButton}
+            labelStyle={{ fontSize: 16 }}
+            onPress={() => navigation.navigate("About")}
+          >
+            Sobre
+          </Button>
+        </View>
+
+        {/* Botão flutuante para adicionar item */}
+        <FAB
+          icon="plus"
+          style={[styles.fab, { backgroundColor: colors.primary }]}
+          color={colors.onPrimary}
           onPress={() => navigation.navigate("AddItem")}
         />
-        <Button title="Sobre" onPress={() => navigation.navigate("About")} />
-      </View>
-    </View>
+      </ImageBackground>
+    </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  buttons: {
+  background: { flex: 1 },
+  header: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 20,
+    gap: 8,
+  },
+  title: { fontWeight: "bold" },
+  footer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    padding: 12,
+    borderTopWidth: 1,
+    borderColor: "#ddd",
+  },
+  aboutButton: {
+    minWidth: 120, // impede que o texto fique "..."
+    borderRadius: 20,
   },
   emptyText: {
     textAlign: "center",
     marginTop: 50,
     fontSize: 16,
-    color: "#888",
+    color: "#555",
   },
-  itemButtons: { flexDirection: "row", justifyContent: "space-between", width: 250 },
-  itemContainer: {
-    padding: 15,
+  card: {
+    marginHorizontal: 15,
+    marginBottom: 15,
+    borderRadius: 12,
+    elevation: 2,
+  },
+  itemText: {
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  totalText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginTop: 4,
+  },
+  fab: {
+    position: "absolute",
+    right: 20,
+    bottom: 30,
   },
 });
